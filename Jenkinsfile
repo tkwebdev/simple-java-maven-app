@@ -7,6 +7,7 @@ pipeline {
     }
     stages {
         stage('Build') {
+            agent { label 'master' }
             steps {
                 sh 'mvn -B -DskipTests clean package'
             }
@@ -23,6 +24,7 @@ pipeline {
             }
         }
         stage('Deliver') {
+            agent { label 'master' }
             steps {
                 sh './jenkins/scripts/deliver.sh'
             }
