@@ -1,31 +1,21 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent none
+
     stages {
         stage('Build') {
-            agent { label 'master' }
+            agent { docker { image 'maven:3-alpine' } }
             steps {
                 sh 'mvn -B -DskipTests clean package'
-            }
-        }
-        stage('Test') {
-            agent { label 'ubuntu_18' }
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
+                stash includes: '**/target/*.jar', name: 'app'
             }
         }
         stage('Deliver') {
-            agent { label 'master' }
+            agent { label 'ubuntu_18' }
             steps {
+                unstash 'app'
+                sh './jenkins/scripts/deliver.sh'
+                sh './jenkins/scripts/deliver.sh'
+                sh './jenkins/scripts/deliver.sh'
                 sh './jenkins/scripts/deliver.sh'
             }
         }
